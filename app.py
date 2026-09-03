@@ -1,10 +1,9 @@
 import os
 import time
-from PIL import Image
 import streamlit as st
 from textblob import TextBlob
 from gtts import gTTS
-from deep_translator import GoogleTranslator
+from googletrans import Translator
 
 # 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
@@ -29,6 +28,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Instancia del traductor
+translator = Translator()
+
 # --- FUNCIONES ---
 def generar_audio_es(texto, filename="voz_resultado.mp3"):
     """Genera audio en español con gTTS"""
@@ -52,17 +54,18 @@ def obtener_imagen_sentimiento(polaridad):
 
 # --- INTERFAZ ---
 st.markdown('<p class="big-font">🎭 Análisis de Sentimiento con Voz</p>', unsafe_allow_html=True)
-st.caption("Escribe tu frase en español. Se traducirá internamente para analizar el sentimiento, cambiará la imagen y te hablará.")
+st.caption("Escribe tu frase en español. Se traducirá internamente con googletrans para analizar el sentimiento.")
 
 text_input = st.text_area("Escribe la frase que deseas analizar:", placeholder="Ej: ¡Me encanta este lugar, la atención fue maravillosa!")
 
 if text_input:
     with st.spinner('Traduciendo y analizando...'):
         try:
-            # TRADUCCIÓN GARANTIZADA: Español -> Inglés usando deep-translator
-            translated_text = GoogleTranslator(source='es', target='en').translate(text_input)
+            # Traducción explícita del español al inglés usando googletrans==3.1.0a0
+            translation = translator.translate(text_input, src='es', dest='en')
+            translated_text = translation.text
             
-            # Análisis de sentimiento en inglés (donde TextBlob funciona bien)
+            # Análisis sobre el texto ya traducido
             blob = TextBlob(translated_text)
             polarity = round(blob.sentiment.polarity, 2)
             subjectivity = round(blob.sentiment.subjectivity, 2)
@@ -114,7 +117,7 @@ if text_input:
                 st.audio(archivo_audio, format="audio/mp3")
 
         except Exception as e:
-            st.error(f"Ocurrió un error con la traducción o el análisis: {e}")
+            st.error(f"Error durante el proceso de traducción: {e}")
 
 else:
     st.info("Escribe una frase arriba para comenzar el análisis.")

@@ -2,4 +2,4 @@ streamlit
 textblob==0.17.1
 gTTS==2.2.2
 googletrans==3.1.0a0
-pip install deep-translator gTTS TextBlob pandas streamlit Pillow
+
